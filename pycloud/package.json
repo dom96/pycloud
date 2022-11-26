@@ -1,0 +1,15 @@
+{
+  "name": "pycloud",
+  "version": "0.0.0",
+  "devDependencies": {
+    "wrangler": "2.4.4"
+  },
+  "private": true,
+  "scripts": {
+    "start": "wrangler dev",
+    "deploy": "wrangler publish"
+  },
+  "dependencies": {
+    "@cloudflare/workers-wasi": "^0.0.5"
+  }
+}
