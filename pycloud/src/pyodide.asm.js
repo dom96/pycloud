@@ -2239,30 +2239,30 @@ var _createPyodideModule = (() => {
                 "use strict";
                 const IN_NODE = false;//"undefined" != typeof process && process.release && "node" === process.release.name && void 0 === process.browser;
                 let nodeFetch, nodePath, nodeFsPromisesMod, resolvePath, loadBinaryFile;
-                // if (resolvePath = IN_NODE ? function(path, base) {
-                //         return nodePath.resolve(base || ".", path)
-                //     } : function(path, base) {
-                //         return void 0 === base && (base = location), new URL(path, base).toString()
-                //     }, loadBinaryFile = IN_NODE ? async function(path, _file_sub_resource_hash) {
-                //         if (path.startsWith("file://") && (path = path.slice("file://".length)), path.includes("://")) {
-                //             console.log("Fetch?");
-                //             let response = await nodeFetch(path);
-                //             if (!response.ok) throw new Error(`Failed to load '${path}': request failed.`);
-                //             return new Uint8Array(await response.arrayBuffer())
-                //         } {
-                //             const data = await nodeFsPromisesMod.readFile(path);
-                //             return new Uint8Array(data.buffer, data.byteOffset, data.byteLength)
-                //         }
-                //     }: async function(path, subResourceHash) {
-                //         const url = new URL(path, location);
-                //         let options = subResourceHash ? {
-                //                 integrity: subResourceHash
-                //             } : {},
-                //             response = await fetch(url, options);
-                //             console.log("Fetch2?");
-                //         if (!response.ok) throw new Error(`Failed to load '${url}': request failed.`);
-                //         return new Uint8Array(await response.arrayBuffer())
-                //     }, globalThis.document);
+                if (resolvePath = IN_NODE ? function(path, base) {
+                        return nodePath.resolve(base || ".", path)
+                    } : function(path, base) {
+                        return void 0 === base && (base = location), new URL(path, base).toString()
+                    }, loadBinaryFile = IN_NODE ? async function(path, _file_sub_resource_hash) {
+                        if (path.startsWith("file://") && (path = path.slice("file://".length)), path.includes("://")) {
+                            console.log("Fetch?");
+                            let response = await nodeFetch(path);
+                            if (!response.ok) throw new Error(`Failed to load '${path}': request failed.`);
+                            return new Uint8Array(await response.arrayBuffer())
+                        } {
+                            const data = await nodeFsPromisesMod.readFile(path);
+                            return new Uint8Array(data.buffer, data.byteOffset, data.byteLength)
+                        }
+                    }: async function(path, subResourceHash) {
+                        const url = new URL(path, location);
+                        let options = subResourceHash ? {
+                                integrity: subResourceHash
+                            } : {};
+                        console.log("Fetching ", url.toString());
+                        let response = await fetch(url.toString());
+                        if (!response.ok) throw new Error(`Failed to load '${url}': request failed.`);
+                        return new Uint8Array(await response.arrayBuffer())
+                    }, globalThis.document);
                 // else if (globalThis.importScripts);
                 // else if (!IN_NODE) throw new Error("Cannot determine runtime environment");
 

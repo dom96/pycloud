@@ -21,6 +21,7 @@ export default {
 		let uri = new URL(request.url);
 		console.log(pyodide_wasm);
 		globalThis.PYODIDE_ASM_WASM = pyodide_wasm;
+		globalThis.location = "https://cdn.jsdelivr.net/pyodide/v0.21.3/full/"
 		console.log("Received ", uri.pathname);
 		if (uri.pathname == "/") {
 			console.log("hiii?");
@@ -28,6 +29,19 @@ export default {
 				indexURL: "https://cdn.jsdelivr.net/pyodide/v0.21.3/full/"//"http://localhost:8787/"
 			});
 			console.log("Loaded");
+			console.log(pyodide.runPython(`
+				import sys
+				sys.version
+			`));
+
+			await pyodide.loadPackage("micropip");
+			const micropip = pyodide.pyimport("micropip");
+			await micropip.install('snowballstemmer');
+			pyodide.runPython(`
+				import snowballstemmer
+				stemmer = snowballstemmer.stemmer('english')
+				print(stemmer.stemWords('go goes going gone'.split()))
+			`);
 
 			// Finally, let's reply with the WASM's output.
 			return new Response("test");

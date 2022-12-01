@@ -209,6 +209,9 @@ import './pyodide.asm.js';
     let blob = await resp.blob();
     return new Uint8Array(await blob.arrayBuffer());
   }
+  resolvePath = function(path, base) {
+    return void 0 === base && (base = location), new URL(path, base).toString()
+  };
   // if (resolvePath = IN_NODE ? function(path, base) {
   //         return nodePath.resolve(base || ".", path)
   //     } : function(path, base) {
