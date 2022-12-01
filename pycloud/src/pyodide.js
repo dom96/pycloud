@@ -298,7 +298,6 @@ import './pyodide.asm.js';
       return importhook.register_js_module("pyodide_js", pyodide), API.pyodide_py = import_module("pyodide"), API.pyodide_code = import_module("pyodide.code"), API.pyodide_ffi = import_module("pyodide.ffi"), API.package_loader = import_module("pyodide._package_loader"), pyodide.pyodide_py = API.pyodide_py, pyodide.globals = API.globals, pyodide
   }
   async function loadPyodide(options = {}) {
-      console.log("hhhh");
       await async function() {
           if (!IN_NODE) return;
           if (nodeUrlMod = (await import( /* webpackIgnore: true */ "url")).default, nodeFetch = fetch, nodeVmMod = (await import( /* webpackIgnore: true */ "vm")).default, nodePath = await import( /* webpackIgnore: true */ "path"), pathSep = nodePath.sep, "undefined" != typeof require) return;
@@ -312,7 +311,6 @@ import './pyodide.asm.js';
               return node_modules[mod]
           }
       }();
-      console.log("hi");
       let indexURL = options.indexURL || function() {
           if ("string" == typeof __dirname) return __dirname;
           let err;
@@ -322,7 +320,6 @@ import './pyodide.asm.js';
               err = e
           }
           let fileName = ErrorStackParser.parse(err)[0].fileName;
-          console.log(fileName)
           const indexOfLastSlash = fileName.lastIndexOf(pathSep);
           if (-1 === indexOfLastSlash) throw new Error("Could not extract indexURL path from pyodide module location");
           return fileName.slice(0, indexOfLastSlash)
@@ -362,27 +359,20 @@ import './pyodide.asm.js';
       Module.locateFile = path => config.indexURL + path;
       // XXX: We load this above.
       // const scriptSrc = `${config.indexURL}pyodide.asm.js`;
-      console.log("Here-1");
-      if (/*await loadScript(scriptSrc), */await _createPyodideModule(Module), console.log("asd"), await moduleLoaded, "0.21.3" !== API.version) throw new Error(`Pyodide version does not match: '0.21.3' <==> '${API.version}'. If you updated the Pyodide version, make sure you also updated the 'indexURL' parameter passed to loadPyodide.`);
+      if (/*await loadScript(scriptSrc), */await _createPyodideModule(Module), await moduleLoaded, "0.21.3" !== API.version) throw new Error(`Pyodide version does not match: '0.21.3' <==> '${API.version}'. If you updated the Pyodide version, make sure you also updated the 'indexURL' parameter passed to loadPyodide.`);
       Module.locateFile = path => {
           throw new Error("Didn't expect to load any more file_packager files!")
       };
-      console.log("Here");
       const pyodide_py_tar = await pyodide_py_tar_promise;
       ! function(Module, pyodide_py_tar) {
           let stream = Module.FS.open("/pyodide_py.tar", "w");
-          console.log(pyodide_py_tar.byteLength);
           Module.FS.write(stream, pyodide_py_tar, 0, pyodide_py_tar.byteLength, void 0, !0), Module.FS.close(stream);
-          const code_ptr = Module.stringToNewUTF8('\nprint("hiya from inside python")\nfrom sys import version_info\npyversion = f"python{version_info.major}.{version_info.minor}"\nimport shutil\nshutil.unpack_archive("/pyodide_py.tar", f"/lib/{pyversion}/site-packages/")\ndel shutil\nimport importlib\nimportlib.invalidate_caches()\ndel importlib\nimport glob\nprint(glob.glob(f"/lib/{pyversion}/site-packages/*"))\n    ');
+          const code_ptr = Module.stringToNewUTF8('\nfrom sys import version_info\npyversion = f"python{version_info.major}.{version_info.minor}"\nimport shutil\nshutil.unpack_archive("/pyodide_py.tar", f"/lib/{pyversion}/site-packages/")\ndel shutil\nimport importlib\nimportlib.invalidate_caches()\ndel importlib\nimport glob\nprint(glob.glob(f"/lib/{pyversion}/site-packages/*"))\n    ');
           if (Module._PyRun_SimpleString(code_ptr)) throw new Error("OOPS!");
-          console.log("After py run");
           Module._free(code_ptr), Module.FS.unlink("/pyodide_py.tar")
       }(Module, pyodide_py_tar), Module._pyodide_init();
-      console.log("Here2");
       const pyodide = finalizeBootstrap(API, config);
-      console.log("Here3");
       if (pyodide.version.includes("dev") || API.setCdnUrl(`https://cdn.jsdelivr.net/pyodide/v${pyodide.version}/full/`), await API.packageIndexReady, "0.21.3" !== API.repodata_info.version) throw new Error("Lock file version doesn't match Pyodide version");
-      console.log("Here4");
       return config.fullStdLib && await pyodide.loadPackage(["distutils"]), pyodide.runPython("print('Python initialization complete')"), pyodide
   }
   globalThis.loadPyodide = loadPyodide, exports.loadPyodide = loadPyodide, exports.version = "0.21.3", Object.defineProperty(exports, "__esModule", {

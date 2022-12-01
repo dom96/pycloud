@@ -161,7 +161,6 @@ var _createPyodideModule = (() => {
                         resp.then(async (resp) => {
                           console.log("Fetched ", packageName);
                           let text = await resp.blob();
-                          console.log(resp.status);
                           callback(await text.arrayBuffer());
                         }).catch((error) => {
                           throw new Error("NetworkError for: " + packageName + error)
@@ -2228,7 +2227,6 @@ var _createPyodideModule = (() => {
                     "remote_package_size": 5020632
                 })
             })();
-            console.log("2231");
             const API = Module.API;
             const Hiwire = {};
             const Tests = {};
@@ -2245,7 +2243,6 @@ var _createPyodideModule = (() => {
                         return void 0 === base && (base = location), new URL(path, base).toString()
                     }, loadBinaryFile = IN_NODE ? async function(path, _file_sub_resource_hash) {
                         if (path.startsWith("file://") && (path = path.slice("file://".length)), path.includes("://")) {
-                            console.log("Fetch?");
                             let response = await nodeFetch(path);
                             if (!response.ok) throw new Error(`Failed to load '${path}': request failed.`);
                             return new Uint8Array(await response.arrayBuffer())
