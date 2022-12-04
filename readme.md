@@ -32,6 +32,9 @@ img.save("/result.png")
 
 ### Matplotlib
 
+This does work, but the WASM files are too big to be uploaded to prod. So
+this won't work on the pycloud website.
+
 ```python
 import matplotlib
 import matplotlib.pyplot as plt

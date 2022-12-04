@@ -8090,6 +8090,9 @@ var _createPyodideModule = (() => {
                         // console.log(binary);
                         return sha256(binary).then(function (sha) {
                           console.log("Loading PYODIDE_PACKAGE_WASM_MODULES with sha256: ", sha);
+                          if (!(sha in globalThis.PYODIDE_PACKAGE_WASM_MODULES)) {
+                            console.error("Above package not preloaded.");
+                          }
                           const module = globalThis.PYODIDE_PACKAGE_WASM_MODULES[sha];
                           var instance = new WebAssembly.Instance(module, info);
                           return postInstantiation(instance);
