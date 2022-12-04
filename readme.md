@@ -55,3 +55,6 @@ pre-bundled with the worker, every Python package which includes wasm modules
 needs to be manually pre-compiled and included in the worker JS file.
 There is also some logic which has been disabled inside Pyodide that appears to
 optimise JS by compiling it partially to WASM, this is likely to cause poor performance.
+* The cold starts are really bad because CPython is reinitialised each time,
+including each of the packages (which are fetched over the internet). This can
+take around 10 seconds.
