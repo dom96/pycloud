@@ -1,0 +1,75 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python on Cloudflare Workers - Pycloud</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style type="text/css" media="screen">
+      #editor {
+          position: absolute;
+          top: 0;
+          right: 0;
+          bottom: 0;
+          left: 0;
+      }
+    </style>
+
+  </head>
+  <body>
+    <header class="drop-shadow drop-shadow-sm shadow-md p-4">
+      <div class="max-w-screen-xl w-full mx-auto px-4">
+        <h1 class="text-3xl font-bold text-gray-700">
+          <span class="text-blue-500">Python</span> on <span class="text-orange-500">Cloudflare Workers</span>
+        </h1>
+      </div>
+    </header>
+    <div class="max-w-screen-xl w-full mx-auto px-4 mt-4">
+      <button class="mb-4 px-4 py-2 font-semibold text-sm bg-cyan-500 text-white rounded-full shadow-sm" id="executebtn">Execute</button>
+      <div class="flex ">
+        <div class="relative h-40 w-full mr-4">
+          <div id="editor">from PIL import Image
+img = Image.new(mode="RGB", size=(800, 600), color=(231, 136, 59))
+img.save("/result.png") # editor will try to open image saved in result.png</div>
+        </div>
+        <div class="w-full">
+          <h3 class="text-xl font-bold text-gray-700">Output</h3>
+          <pre id="code_output"></pre>
+          <img id="image_output" />
+        </div>
+      </div>
+
+
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.13.1/ace.min.js" type="text/javascript" charset="utf-8"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.13.1/mode-python.min.js" type="text/javascript" charset="utf-8"></script>
+    <script>
+        var editor = ace.edit("editor");
+        editor.setTheme("ace/theme/monokai");
+        editor.session.setMode("ace/mode/python");
+        async function onExecute() {
+          document.querySelector("#image_output").src = "";
+          document.querySelector("#code_output").textContent = "";
+          fetch("/eval",
+            {
+              method: "POST",
+              body: editor.getValue()
+            }
+          ).then(async (resp) => {
+            if (!resp.ok) {
+              document.querySelector("#code_output").textContent = "Failed to get result";
+              return;
+            }
+            let json = await resp.json();
+            document.querySelector("#code_output").textContent = json["output"];
+            document.querySelector("#image_output").src = json["image"];
+          }, async (reason) => {
+            document.querySelector("#code_output").textContent = "Failed to get result: " + reason;
+          });
+        }
+        document.querySelector("#executebtn").onclick = async () => {await onExecute();};
+    </script>
+  </body>
+</html>
