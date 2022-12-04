@@ -142,7 +142,7 @@ async function initPy() {
   await pyodide.loadPackage("micropip");
   const micropip = pyodide.pyimport("micropip");
   await micropip.install('pillow');
-  // await micropip.install('matplotlib');
+  await micropip.install('matplotlib');
   return pyodide;
 }
 
