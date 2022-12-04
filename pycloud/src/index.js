@@ -133,9 +133,11 @@ async function initPy() {
     "f4c3a5a29db5da34364a4062d4f05cb32a96accb20a0aa7a78e06f8528da22bd":
       sha_f4c3a5a29db5da34364a4062d4f05cb32a96accb20a0aa7a78e06f8528da22bd,
   };
-
+  globalThis.PYODIDE_OUTPUT = "";
   let pyodide = await loadPyodide({
-    indexURL: globalThis.location
+    indexURL: globalThis.location,
+    stdout: (msg) => globalThis.PYODIDE_OUTPUT += msg + "\n",
+    stderr: (msg) => globalThis.PYODIDE_OUTPUT += msg + "\n"
   });
   await pyodide.loadPackage("micropip");
   const micropip = pyodide.pyimport("micropip");
@@ -150,6 +152,18 @@ async function getPyodide() {
   return globalThis.LOADED_PYODIDE;
 }
 
+async function runCode(py, code) {
+  globalThis.PYODIDE_OUTPUT = "";
+  try {
+    if (py.FS.analyzePath("/result.png").exists) {
+      py.FS.unlink("/result.png");
+    }
+    return await py.runPythonAsync(code);
+  } catch (err) {
+    globalThis.PYODIDE_OUTPUT = err.message;
+  }
+}
+
 export default {
   async fetch(request, env, ctx) {
     let uri = new URL(request.url);
@@ -160,43 +174,28 @@ export default {
           'Content-Type': 'text/html'
         }});
       case "/eval": {
+        // Implementation for the interactive portion of the pycloud site.
         const code = await request.text();
         const pyodide = await getPyodide();
-        pyodide.runPython(code);
+        await runCode(pyodide, code);
         let b64 = "";
         if (pyodide.FS.analyzePath("/result.png").exists) {
           const file = pyodide.FS.readFile("/result.png", { encoding: "binary" });
           b64 = Buffer.from(file).toString('base64');
         }
         return new Response(JSON.stringify({
-          "output": "",
+          "output": globalThis.PYODIDE_OUTPUT,
           "image": b64.length > 0 ? "data:image/png;base64," + b64 : ""
         }));
       }
       case "/test":
-        // let pyodide = await loadPyodide({
-        //   indexURL: globalThis.location
-        // });
+        // A simple example of how to run code directly. In this case using
+        // Pillow to render an image and return it from the worker.
         const pyodide = await getPyodide();
-        console.log("loadPyodide completed");
-        console.log(pyodide.runPython(`
-          import sys
-          sys.version
-        `));
-
-
         pyodide.runPython(`
-          #from PIL import Image
-          #img = Image.new(mode="RGB", size=(800, 600), color=(231, 136, 59))
-          #img.save("/result.png")
-          import matplotlib
-          import matplotlib.pyplot as plt
-          matplotlib.use('Agg')
-          fig, ax = plt.subplots( nrows=1, ncols=1 )  # create figure & 1 axis
-          ax.plot([0,1,2], [10,20,3])
-          fig.savefig('/result.png')   # save the figure to file
-          plt.close(fig)    # close the figure window
-
+          from PIL import Image
+          img = Image.new(mode="RGB", size=(800, 600), color=(231, 136, 59))
+          img.save("/result.png")
         `);
 
         let file = pyodide.FS.readFile("/result.png", { encoding: "binary" });
