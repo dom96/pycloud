@@ -1,14 +1,34 @@
+This repo holds a proof of concept fork of Pyodide which implements support for
+Cloudflare Workers. The implementation right now is somewhat hacky but it does
+function and allows you to use libraries like Pillow and matplotlib on Workers.
+
+To play around with it visit https://pycloud.picheta.me, or clone this repo
+and follow the "Running" section below.
+
+I wouldn't recommend using this in production as it stands right now. For an
+alternative way to use Python on Workers (which is more official) check out
+[this template](https://github.com/cloudflare/python-worker-hello-world).
 ## Running
 
+> :warning: You need a Workers Paid plan in order to run this on your account,
+> otherwise you may see "CPU exceeded" errors. You'll also need `wrangler`.
+
 ```
-npm start
+$ git clone https://github.com/dom96/pycloud
+$ cd pycloud/pycloud
+$ npm start
 ```
 
-Local mode works. Preview service exceeds CPU.
+## Code Samples
 
-## Examples
-
+Below are some code samples that are known to run well inside this implementation.
 ### Pillow
+
+```python
+from PIL import Image
+img = Image.new(mode="RGB", size=(800, 600), color=(231, 136, 59))
+img.save("/result.png")
+```
 
 ### Matplotlib
 
@@ -22,15 +42,15 @@ fig.savefig('/result.png')   # save the figure to file
 plt.close(fig)    # close the figure window
 ```
 
-## Running python repl using wasmtime
+## Caveats
 
-wasmtime .\bin\python.wasm --mapdir lib::lib
-
-## Fun things
-
-- Module not found _pyodide
-  - Turned out to be because my loadBinary was returning an ArrayBuffer.
-  - This confused Module.FS.write and cause it to silently not extract the
-    tarball properly.
-  - I worked this out by running Pyodide in the browser and checking differences
-  - In browser loadBinary returned a Uint8Array, changing to this fixed it.
+* This effectively runs a CPython interpreter that has been compiled to WASM on
+Workers. This means performance isn't great, especially for cold starts.
+* The changes made to Pyodide have been applied on top of a minimised version of
+the Pyodide v0.21.3's JS files (which have been prettified). Ideally in the
+future it would be nice to apply the same changes to Pyodide's repo and upstream them.
+* Because Cloudflare Workers only allows execution of WebAssembly that has been
+pre-bundled with the worker, every Python package which includes wasm modules
+needs to be manually pre-compiled and included in the worker JS file.
+There is also some logic which has been disabled inside Pyodide that appears to
+optimise JS by compiling it partially to WASM, this is likely to cause poor performance.

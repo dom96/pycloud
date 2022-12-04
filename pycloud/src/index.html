@@ -28,6 +28,15 @@
       </div>
     </header>
     <div class="max-w-screen-xl w-full mx-auto px-4 mt-4">
+      <div class="text-gray-400 border-blue-200 border-l-2 m-4 p-2">
+        <i class="fa-solid fa-circle-info"></i>
+        This website allows you to execute any Python code on a customised version of Pyodide running
+        on Cloudflare Workers. It is a proof of concept for running Python on Workers using WASM.
+      </div>
+      <div class="text-gray-400 border-orange-200 border-l-2 m-4 p-2">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        There are some important caveats to how this is implemented. Check out the <a class="text-blue-400 hover:decoration-solid hover:underline" href="https://github.com/dom96/pycloud#caveats">GitHub readme to learn more</a>.
+      </div>
       <button class="mb-4 inline-flex items-center px-4 py-2 font-semibold leading-6 text-sm shadow rounded-md text-white bg-indigo-500 hover:bg-indigo-400 transition ease-in-out duration-150" id="executebtn">
         <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
           <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
