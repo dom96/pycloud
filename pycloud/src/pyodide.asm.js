@@ -7989,6 +7989,19 @@ var _createPyodideModule = (() => {
             }
             Module["zeroMemory"] = zeroMemory;
 
+            async function sha256(buf) {
+              // https://stackoverflow.com/a/48161723/492186
+              // hash the message
+              const hashBuffer = await crypto.subtle.digest('SHA-256', buf);
+
+              // convert ArrayBuffer to Array
+              const hashArray = Array.from(new Uint8Array(hashBuffer));
+
+              // convert bytes to hex string
+              const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+              return hashHex;
+            }
+
             function loadWebAssemblyModule(binary, flags, handle) {
                 var metadata = getDylinkMetadata(binary);
                 CurrentModuleWeakSymbols = metadata.weakImports;
@@ -8074,9 +8087,17 @@ var _createPyodideModule = (() => {
                             var instance = new WebAssembly.Instance(binary, info);
                             return Promise.resolve(postInstantiation(instance))
                         }
-                        return WebAssembly.instantiate(binary, info).then(function(result) {
-                            return postInstantiation(result.instance)
-                        })
+                        // console.log(binary);
+                        return sha256(binary).then(function (sha) {
+                          console.log("Loading PYODIDE_PACKAGE_WASM_MODULES with sha256: ", sha);
+                          const module = globalThis.PYODIDE_PACKAGE_WASM_MODULES[sha];
+                          var instance = new WebAssembly.Instance(module, info);
+                          return postInstantiation(instance);
+                        });
+
+                        // return WebAssembly.instantiate(binary, info).then(function(result) {
+                        //     return postInstantiation(result.instance)
+                        // })
                     }
                     var module = binary instanceof WebAssembly.Module ? binary : new WebAssembly.Module(binary);
                     var instance = new WebAssembly.Instance(module, info);
@@ -8094,8 +8115,9 @@ var _createPyodideModule = (() => {
                 metadata.neededDynlibs.forEach(function(dynNeeded) {
                     loadDynamicLibrary(dynNeeded, flags)
                 });
-                return loadModule()
+                return loadModule();
             }
+
             Module["loadWebAssemblyModule"] = loadWebAssemblyModule;
 
             function loadDynamicLibrary(lib, flags, handle) {
