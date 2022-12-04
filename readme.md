@@ -2,8 +2,7 @@ This repo holds a proof of concept fork of Pyodide which implements support for
 Cloudflare Workers. The implementation right now is somewhat hacky but it does
 function and allows you to use libraries like Pillow and matplotlib on Workers.
 
-To play around with it visit https://pycloud.picheta.me, or clone this repo
-and follow the "Running" section below.
+To play around with it clone this repo and follow the "Running" section below.
 
 I wouldn't recommend using this in production as it stands right now. For an
 alternative way to use Python on Workers (which is more official) check out
@@ -32,8 +31,7 @@ img.save("/result.png")
 
 ### Matplotlib
 
-This does work, but the WASM files are too big to be uploaded to prod. So
-this won't work on the pycloud website.
+This does work, but the WASM files are too big to be uploaded to prod.
 
 ```python
 import matplotlib

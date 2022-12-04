@@ -2,3 +2,4 @@ name = "pycloud"
 main = "src/index.js"
 compatibility_date = "2022-11-24"
 node_compat = true
+usage_model = "bundled"
