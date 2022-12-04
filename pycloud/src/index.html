@@ -26,12 +26,18 @@
       </div>
     </header>
     <div class="max-w-screen-xl w-full mx-auto px-4 mt-4">
-      <button class="mb-4 px-4 py-2 font-semibold text-sm bg-cyan-500 text-white rounded-full shadow-sm" id="executebtn">Execute</button>
+      <button class="mb-4 inline-flex items-center px-4 py-2 font-semibold leading-6 text-sm shadow rounded-md text-white bg-indigo-500 hover:bg-indigo-400 transition ease-in-out duration-150" id="executebtn">
+        <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        Execute
+      </button>
       <div class="flex ">
         <div class="relative h-40 w-full mr-4">
           <div id="editor">from PIL import Image
 img = Image.new(mode="RGB", size=(800, 600), color=(231, 136, 59))
-img.save("/result.png") # editor will try to open image saved in result.png</div>
+img.save("/result.png") # editor will try to open image saved in /result.png</div>
         </div>
         <div class="w-full">
           <h3 class="text-xl font-bold text-gray-700">Output</h3>
@@ -45,17 +51,22 @@ img.save("/result.png") # editor will try to open image saved in result.png</div
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.13.1/mode-python.min.js" type="text/javascript" charset="utf-8"></script>
     <script>
         var editor = ace.edit("editor");
-        editor.setTheme("ace/theme/monokai");
         editor.session.setMode("ace/mode/python");
+        document.querySelector("#executebtn > svg").style.display = 'none';
         async function onExecute() {
+          if (document.querySelector("#executebtn > svg").style.display == '') {
+            return; // Execution in progress.
+          }
           document.querySelector("#image_output").src = "";
           document.querySelector("#code_output").textContent = "";
+          document.querySelector("#executebtn > svg").style.display = '';
           fetch("/eval",
             {
               method: "POST",
               body: editor.getValue()
             }
           ).then(async (resp) => {
+            document.querySelector("#executebtn > svg").style.display = 'none';
             if (!resp.ok) {
               document.querySelector("#code_output").textContent = "Failed to get result";
               return;
