@@ -1,15 +1,11 @@
-/**
- * Welcome to Cloudflare Workers! This is your first worker.
- *
- * - Run `npx wrangler dev src/index.js` in your terminal to start a development server
- * - Open a browser tab at http://localhost:8787/ to see your worker in action
- * - Run `npx wrangler publish src/index.js --name my-worker` to publish your worker
- *
- * Learn more at https://developers.cloudflare.com/workers/
- */
+// This is a (hacky) implementation of Pyodide on Cloudflare Workers.
+//
+// For more info see the readme. Licensed under MPL 2.0.
 
 import index from './index.html';
 import "./pyodide.js";
+// We need to pre-load a bunch of WASM because Cloudflare Workers does not allow
+// dynamic execution of WebAssembly.
 import pyodide_wasm from './pyodide.asm.wasm';
 // WASM for PIL-9.1.1 library.
 import sha_00cfa89075ee1a8a0d57c6fb78bb06f7b4650553a704459fa19be7958a9c4998 from
