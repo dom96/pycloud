@@ -144,7 +144,11 @@ async function initPy() {
   return pyodide;
 }
 
-// const globalPyodide = initPy();
+async function getPyodide() {
+  const pyodide = globalThis.LOADED_PYODIDE ?? await initPy();
+  globalThis.LOADED_PYODIDE = pyodide;
+  return globalThis.LOADED_PYODIDE;
+}
 
 export default {
   async fetch(request, env, ctx) {
@@ -157,7 +161,7 @@ export default {
         }});
       case "/eval": {
         const code = await request.text();
-        const pyodide = await initPy();
+        const pyodide = await getPyodide();
         pyodide.runPython(code);
         let b64 = "";
         if (pyodide.FS.analyzePath("/result.png").exists) {
@@ -173,7 +177,7 @@ export default {
         // let pyodide = await loadPyodide({
         //   indexURL: globalThis.location
         // });
-        const pyodide = await initPy();
+        const pyodide = await getPyodide();
         console.log("loadPyodide completed");
         console.log(pyodide.runPython(`
           import sys
